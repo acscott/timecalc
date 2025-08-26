@@ -548,12 +548,13 @@ class AdvancedTimeCalculator:
 
     def handle_progress_syntax(self, expression):
         """Convert various progress syntaxes to function calls"""
-        # Convert @ syntax: "45m@20%" -> "progress(45m, 20%)"
-        at_pattern = r'(\d+(?:\.\d+)?[a-z]+(?:\d+(?:\.\d+)?[a-z]+)*)\s*@\s*(\d+(?:\.\d+)?)%'
+        # Convert @ syntax: "1h15s@15%" -> "progress(1h15s, 15%)"
+        # This pattern handles compound durations like 1h15s, 1d45m15s, etc.
+        at_pattern = r'([0-9]+(?:\.[0-9]+)?[a-zA-Z]+(?:[0-9]+(?:\.[0-9]+)?[a-zA-Z]+)*)\s*@\s*([0-9]+(?:\.[0-9]+)?)%'
         expression = re.sub(at_pattern, r'progress(\1, \2%)', expression, flags=re.IGNORECASE)
         
-        # Convert percentage-in syntax: "20% in 45m" -> "progress(45m, 20%)"
-        percent_in_pattern = r'(\d+(?:\.\d+)?)%\s+in\s+(\d+(?:\.\d+)?[a-z]+(?:\d+(?:\.\d+)?[a-z]+)*)'
+        # Convert percentage-in syntax: "15% in 1h15s" -> "progress(1h15s, 15%)"
+        percent_in_pattern = r'([0-9]+(?:\.[0-9]+)?)%\s+in\s+([0-9]+(?:\.[0-9]+)?[a-zA-Z]+(?:[0-9]+(?:\.[0-9]+)?[a-zA-Z]+)*)'
         expression = re.sub(percent_in_pattern, r'progress(\2, \1%)', expression, flags=re.IGNORECASE)
         
         return expression
@@ -766,7 +767,7 @@ class AdvancedTimeCalculator:
 
         # Handle decimal seconds manually
         decimal_match = re.match(
-            r'^(\d{1,2}):(\d{2}):(\d{1,2}(?:\.\d+)?)(?:\s*(am|pm))?$',
+            r'^(\d{1,2}):(\d{2}):(\d{1,2}(?:\.\d+)?)(?:\s*(am|pm))?',
             time_str,
             re.IGNORECASE
         )
@@ -1133,3 +1134,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
